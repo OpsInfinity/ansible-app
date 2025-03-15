@@ -11,13 +11,6 @@
       - git
     state: present
 #####################################################################
-- name: Check if app directory exists and is not empty
-  ansible.builtin.find:
-    paths: /home/spec/app
-    file_type: any
-  register: app_dir_contents
-  ignore_errors: yes
-
 - name: Remove existing app directory if not empty
   ansible.builtin.file:
     path: /home/spec/app
