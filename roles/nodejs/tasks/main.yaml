@@ -1,3 +1,48 @@
+#- name: Add user 'spec'
+#  ansible.builtin.user:
+#    name: spec
+#    shell: /bin/bash
+#    create_home: yes
+#
+#- name: Install Node.js and Git
+#  ansible.builtin.yum:
+#    name:
+#      - nodejs
+#    state: present
+#
+#- name: Copy application files to remote server
+#  ansible.builtin.copy:
+#    src: "{{ item }}"   # Local file path
+#    dest: /home/spec/app/  # Destination directory on remote server
+#  with_items:
+#    - package.json
+#    - index.js
+#
+#
+#- name: Install required Node.js packages
+#  ansible.builtin.shell: npm install express body-parser mongoose bcryptjs jsonwebtoken pug
+#  args:
+#    chdir: /home/spec/app/
+#
+#
+#- name: Set MongoDB environment variables
+#  ansible.builtin.lineinfile:
+#    path: /etc/systemd/system/spec.service
+#    line: "Environment='MONGO_ENDPOINT=mongodb+srv://prasad:123Prasad@cluster0.3zmmc.mongodb.net/login-app-db?retryWrites=true&w=majority'"
+#    create: yes
+#
+#- name: Copy systemd service file
+#  ansible.builtin.template:
+#    src: spec.service
+#    dest: /etc/systemd/system/spec.service
+#
+#
+#- name: Restart spec service
+#  ansible.builtin.systemd:
+#    name: spec
+#    state: restarted
+#    enabled: true
+
 - name: Add user 'spec'
   ansible.builtin.user:
     name: spec
@@ -8,22 +53,33 @@
   ansible.builtin.yum:
     name:
       - nodejs
+      - git
     state: present
+
+- name: Create application directory
+  ansible.builtin.file:
+    path: /home/spec/app
+    state: directory
+    owner: spec
+    group: spec
+    mode: '0755'
 
 - name: Copy application files to remote server
   ansible.builtin.copy:
-    src: "{{ item }}"   # Local file path
+    src: "{{ item }}"  # Local file path
     dest: /home/spec/app/  # Destination directory on remote server
+    owner: spec
+    group: spec
+    mode: '0644'
   with_items:
     - package.json
     - index.js
-
 
 - name: Install required Node.js packages
   ansible.builtin.shell: npm install express body-parser mongoose bcryptjs jsonwebtoken pug
   args:
     chdir: /home/spec/app/
-
+  become_user: spec
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
@@ -35,10 +91,8 @@
   ansible.builtin.template:
     src: spec.service
     dest: /etc/systemd/system/spec.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload systemd daemon
 
-
-- name: Restart spec service
-  ansible.builtin.systemd:
-    name: spec
-    state: restarted
-    enabled: true

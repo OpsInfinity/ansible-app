@@ -1,0 +1,9 @@
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: Restart spec service
+  ansible.builtin.systemd:
+    name: spec
+    state: restarted
+    enabled: yes
