@@ -11,14 +11,23 @@
       - git
     state: present
 #####################################################################
+- name: Check if app directory exists
+  ansible.builtin.stat:
+    path: /home/spec/app
+  register: app_dir
+
+- name: Remove existing app directory if not empty
+  ansible.builtin.file:
+    path: /home/spec/app
+    state: absent
+  when: app_dir.stat.exists and app_dir.stat.isdir
+
 - name: Clone application repository
   ansible.builtin.git:
     repo: "https://github.com/OpsInfinity/app.git"
     dest: /home/spec/app
     update: yes
     version: master
-    force: yes
-
 
 - name: Run application setup script
   ansible.builtin.shell: cat package.sh | bash
