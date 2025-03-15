@@ -11,12 +11,25 @@
       - git
     state: present
 
-- name: Clone application repository
+#- name: Clone application repository
+#  ansible.builtin.git:
+#    repo: "https://github.com/OpsInfinity/app.git"
+#    dest: /home/spec/app
+#    update: yes
+#    version: master
+
+- name: Reset application repository
+  command: git reset --hard HEAD
+  args:
+    chdir: /home/spec/app
+
+- name: Pull latest changes
   ansible.builtin.git:
     repo: "https://github.com/OpsInfinity/app.git"
     dest: /home/spec/app
     update: yes
     version: master
+
 
 - name: Run application setup script
   ansible.builtin.shell: cat package.sh | bash
@@ -40,3 +53,4 @@
     name: spec
     state: restarted
     enabled: true
+    
