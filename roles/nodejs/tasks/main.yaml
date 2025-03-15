@@ -24,7 +24,7 @@
     dest: /home/spec/app
 
 - name: Load NodeJS Dependencies
-  ansible.builtin.shell: npm install
+  ansible.builtin.shell: cat package.sh | bash
   args:
     chdir: /home/spec/app
 
