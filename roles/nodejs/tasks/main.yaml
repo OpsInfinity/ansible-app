@@ -22,7 +22,7 @@
 - name: Install required Node.js packages
   ansible.builtin.shell: npm install express body-parser mongoose bcryptjs jsonwebtoken pug
   args:
-    chdir: /home/spec/app
+    chdir: /home/spec/app/
 
 
 - name: Set MongoDB environment variables
