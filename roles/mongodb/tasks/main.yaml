@@ -1,0 +1,27 @@
+- name: Install DNF package manager
+  ansible.builtin.yum:
+    name: dnf
+    state: present
+
+- name: Copy MongoDB repository configuration
+  ansible.builtin.copy:
+    src: mongodb-org-7.0.repo
+    dest: /etc/yum.repos.d/mongodb-org-7.0.repo
+
+- name: Install MongoDB
+  ansible.builtin.dnf:
+    name: mongodb-org
+    state: present
+    disable_excludes: AppStream
+
+- name: Allow external MongoDB connections
+  ansible.builtin.replace:
+    path: /etc/mongod.conf
+    regexp: '127.0.0.1'
+    replace: '0.0.0.0'
+
+- name: Restart MongoDB
+  ansible.builtin.systemd:
+    name: mongod
+    state: restarted
+    enabled: true

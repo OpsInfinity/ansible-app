@@ -1,0 +1,15 @@
+#- name: Setup MongoDB, Node.js, and Nginx
+#  hosts: all
+#  become: true
+#  roles:
+#    - mongodb
+#    - nodejs
+#    - nginx
+
+- name: Setup MongoDB, Node.js, and Nginx
+  hosts: servers  # Target the 'servers' group from inventory.ini
+  become: true
+  roles:
+    - mongodb
+    - nodejs
+    - nginx
