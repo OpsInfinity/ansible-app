@@ -11,27 +11,17 @@
       - git
     state: present
 #####################################################################
-#- name: Clone application repository
-#  ansible.builtin.git:
-#    repo: "https://github.com/OpsInfinity/app.git"
-#    dest: /home/spec/app
-#    update: yes
-#    version: master
-
-- name: Download DocumentDB Pem file
-  ansible.builtin.get_url:
-    url: https://github.com/OpsInfinity/app.git
+- name: Clone application repository
+  ansible.builtin.git:
+    repo: "https://github.com/OpsInfinity/app.git"
     dest: /home/spec/app
+    update: yes
+    version: master
 
-- name: Load NodeJS Dependencies
+- name: Run application setup script
   ansible.builtin.shell: cat package.sh | bash
   args:
     chdir: /home/spec/app
-
-#- name: Run application setup script
-#  ansible.builtin.shell: cat package.sh | bash
-#  args:
-#    chdir: /home/spec/app
 #####################################################################
 
 
