@@ -11,16 +11,18 @@
       - git
     state: present
 #####################################################################
-- name: Check if app directory exists
-  ansible.builtin.stat:
-    path: /home/spec/app
-  register: app_dir
+- name: Check if app directory exists and is not empty
+  ansible.builtin.find:
+    paths: /home/spec/app
+    file_type: any
+  register: app_dir_contents
+  ignore_errors: yes
 
 - name: Remove existing app directory if not empty
   ansible.builtin.file:
     path: /home/spec/app
     state: absent
-  when: app_dir.stat.exists and app_dir.stat.isdir
+  when: app_dir_contents.matched > 0
 
 - name: Clone application repository
   ansible.builtin.git:
