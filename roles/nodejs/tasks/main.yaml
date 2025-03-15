@@ -8,16 +8,12 @@
   ansible.builtin.yum:
     name:
       - nodejs
-      - git
     state: present
 
 - name: Copy application files to remote server
   ansible.builtin.copy:
     src: "{{ item }}"   # Local file path
     dest: /home/spec/app/  # Destination directory on remote server
-    owner: spec  # Set correct owner
-    group: spec
-    mode: '0644'  # Set file permissions
   with_items:
     - package.json
     - index.js
@@ -36,9 +32,10 @@
     create: yes
 
 - name: Copy systemd service file
-  ansible.builtin.copy:
-    src: files/spec.service
+  ansible.builtin.template:
+    src: spec.service
     dest: /etc/systemd/system/spec.service
+
 
 - name: Restart spec service
   ansible.builtin.systemd:
