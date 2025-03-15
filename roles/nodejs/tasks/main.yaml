@@ -10,12 +10,6 @@
       - nodejs
       - git
     state: present
-#####################################################################
-- name: Remove existing app directory if not empty
-  ansible.builtin.file:
-    path: /home/spec/app
-    state: absent
-  when: app_dir_contents.matched > 0
 
 - name: Clone application repository
   ansible.builtin.git:
@@ -28,25 +22,21 @@
   ansible.builtin.shell: cat package.sh | bash
   args:
     chdir: /home/spec/app
-#####################################################################
-
 
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
-    path: /etc/systemd/system/{{ component }}.service
+    path: /etc/systemd/system/spec.service
     line: "Environment='MONGO_ENDPOINT=mongodb+srv://prasad:123Prasad@cluster0.3zmmc.mongodb.net/login-app-db?retryWrites=true&w=majority'"
     create: yes
 
+- name: Copy systemd service file
+  ansible.builtin.copy:
+    src: files/spec.service
+    dest: /etc/systemd/system/spec.service
 
-- name: Copy SystemnD File
-  ansible.builtin.template:
-    src: "{{ component }}.service"
-    dest:  /etc/systemd/system/{{ component }}.service
-
-- name: Start {{ component }} Service
+- name: Restart spec service
   ansible.builtin.systemd:
-    name: "{{ component }}"
+    name: spec
     state: restarted
-    enabled: yes
-    daemon-reload: yes
+    enabled: true
