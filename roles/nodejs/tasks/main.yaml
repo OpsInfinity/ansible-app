@@ -35,7 +35,6 @@
   ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
   args:
     chdir: /home/spec/app
-  become_user: spec
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
