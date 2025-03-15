@@ -3,31 +3,6 @@
     name: nginx
     state: present
 
-- name: Copy Nginx configuration
-  ansible.builtin.copy:
-    src: files/nginx.conf
-    dest: /etc/nginx/nginx.conf
-
-- name: Copy Node.js Nginx configuration
-  ansible.builtin.copy:
-    src: files/nodejs.conf
-    dest: /etc/nginx/conf.d/nodejs.conf
-
-- name: Disable SELinux enforcement (temporary)
-  ansible.builtin.command: setenforce 0
-  ignore_errors: yes
-
-- name: Restart Nginx
-  ansible.builtin.systemd:
-    name: nginx
-    state: restarted
-    enabled: true
----
-- name: Install Nginx
-  ansible.builtin.yum:
-    name: nginx
-    state: present
-
 
 - name: Copy Nginx configuration
   ansible.builtin.template:
