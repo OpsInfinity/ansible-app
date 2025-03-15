@@ -1,3 +1,60 @@
+#- name: Add user 'spec'
+#  ansible.builtin.user:
+#    name: spec
+#    shell: /bin/bash
+#    create_home: yes
+#
+#- name: Install Node.js and Git
+#  ansible.builtin.yum:
+#    name:
+#      - nodejs
+#      - git
+#    state: present
+#
+##- name: Clone application repository
+##  ansible.builtin.git:
+##    repo: "https://github.com/OpsInfinity/app.git"
+##    dest: /home/spec/app
+##    update: yes
+##    version: master
+#
+#- name: Reset application repository
+#  command: git reset --hard HEAD
+#  args:
+#    chdir: /home/spec/app
+#
+#- name: Pull latest changes
+#  ansible.builtin.git:
+#    repo: "https://github.com/OpsInfinity/app.git"
+#    dest: /home/spec/app
+#    update: yes
+#    version: master
+#
+#
+#- name: Run application setup script
+#  ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
+#  args:
+#    chdir: /home/spec/app
+#
+#
+#- name: Set MongoDB environment variables
+#  ansible.builtin.lineinfile:
+#    path: /etc/systemd/system/spec.service
+#    line: "Environment='MONGO_ENDPOINT=mongodb+srv://prasad:123Prasad@cluster0.3zmmc.mongodb.net/login-app-db?retryWrites=true&w=majority'"
+#    create: yes
+#
+#- name: Copy systemd service file
+#  ansible.builtin.copy:
+#    src: files/spec.service
+#    dest: /etc/systemd/system/spec.service
+#
+#- name: Restart spec service
+#  ansible.builtin.systemd:
+#    name: spec
+#    state: restarted
+#    enabled: true
+#
+
 - name: Add user 'spec'
   ansible.builtin.user:
     name: spec
@@ -11,17 +68,32 @@
       - git
     state: present
 
-#- name: Clone application repository
-#  ansible.builtin.git:
-#    repo: "https://github.com/OpsInfinity/app.git"
-#    dest: /home/spec/app
-#    update: yes
-#    version: master
+- name: Ensure application directory exists
+  file:
+    path: /home/spec/app
+    state: directory
+    owner: spec
+    group: spec
+    mode: '0755'
 
-- name: Reset application repository
+- name: Check if application repo exists
+  stat:
+    path: /home/spec/app/.git
+  register: git_repo
+
+- name: Clone application repository if missing
+  ansible.builtin.git:
+    repo: "https://github.com/OpsInfinity/app.git"
+    dest: /home/spec/app
+    update: yes
+    version: master
+  when: not git_repo.stat.exists
+
+- name: Reset application repository if exists
   command: git reset --hard HEAD
   args:
     chdir: /home/spec/app
+  when: git_repo.stat.exists
 
 - name: Pull latest changes
   ansible.builtin.git:
@@ -30,12 +102,11 @@
     update: yes
     version: master
 
-
-- name: Run application setup script
-  ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
+- name: Install dependencies
+  ansible.builtin.shell: npm install
   args:
     chdir: /home/spec/app
-
+  become_user: spec
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
@@ -47,10 +118,15 @@
   ansible.builtin.copy:
     src: files/spec.service
     dest: /etc/systemd/system/spec.service
+  notify: Reload systemd
 
-- name: Restart spec service
+- name: Enable and restart spec service
   ansible.builtin.systemd:
     name: spec
     state: restarted
     enabled: true
-    
+
+- name: Reload systemd
+  ansible.builtin.systemd:
+    daemon_reload: yes
+  when: git_repo.stat.exists
