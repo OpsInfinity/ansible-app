@@ -10,33 +10,47 @@
       - nodejs
       - git
     state: present
+#####################################################################
+#- name: Clone application repository
+#  ansible.builtin.git:
+#    repo: "https://github.com/OpsInfinity/app.git"
+#    dest: /home/spec/app
+#    update: yes
+#    version: master
 
-- name: Clone application repository
-  ansible.builtin.git:
-    repo: "https://github.com/OpsInfinity/app.git"
+- name: Download DocumentDB Pem file
+  ansible.builtin.get_url:
+    url: https://github.com/OpsInfinity/app.git
     dest: /home/spec/app
-    update: yes
-    version: master
 
-- name: Run application setup script
-  ansible.builtin.shell: cat package.sh | bash
+- name: Load NodeJS Dependencies
+  ansible.builtin.shell: npm install
   args:
     chdir: /home/spec/app
+
+#- name: Run application setup script
+#  ansible.builtin.shell: cat package.sh | bash
+#  args:
+#    chdir: /home/spec/app
+#####################################################################
+
 
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
-    path: /etc/systemd/system/spec.service
+    path: /etc/systemd/system/{{ component }}.service
     line: "Environment='MONGO_ENDPOINT=mongodb+srv://prasad:123Prasad@cluster0.3zmmc.mongodb.net/login-app-db?retryWrites=true&w=majority'"
     create: yes
 
-- name: Copy systemd service file
-  ansible.builtin.copy:
-    src: files/spec.service
-    dest: /etc/systemd/system/spec.service
 
-- name: Restart spec service
+- name: Copy SystemnD File
+  ansible.builtin.template:
+    src: "{{ component }}.service"
+    dest:  /etc/systemd/system/{{ component }}.service
+
+- name: Start {{ component }} Service
   ansible.builtin.systemd:
-    name: spec
+    name: "{{ component }}"
     state: restarted
-    enabled: true
+    enabled: yes
+    daemon-reload: yes
