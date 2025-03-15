@@ -31,10 +31,21 @@
     version: master
 
 
-- name: Run application setup script
-  ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
-  args:
-    chdir: /home/spec/app
+- name: Ensure application directory exists
+  file:
+    path: /home/spec/app
+    state: directory
+    owner: spec
+    group: spec
+    mode: '0755'
+
+- name: Clone application repository
+  ansible.builtin.git:
+    repo: "https://github.com/OpsInfinity/app.git"
+    dest: /home/spec/app
+    update: yes
+    version: master
+    force: yes  # Ensures clean updates
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
