@@ -32,7 +32,7 @@
 
 
 - name: Run application setup script
-  ansible.builtin.shell: cat package.sh | bash
+  ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
   args:
     chdir: /home/spec/app
   become_user: spec
