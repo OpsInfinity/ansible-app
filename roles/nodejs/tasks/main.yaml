@@ -4,18 +4,17 @@
     shell: /bin/bash
     create_home: yes
 
-- name: Install Node.js and Git
+- name: Install Node.js
   ansible.builtin.yum:
     name:
       - nodejs
-      - git
     state: present
 
-- name: Ensure app directory is removed if it's not a Git repository
-  ansible.builtin.file:
-    path: /home/spec/app
-    state: absent
-  when: not ansible.builtin.stat.path is defined
+#- name: Ensure app directory is removed if it's not a Git repository
+#  ansible.builtin.file:
+#    path: /home/spec/app
+#    state: absent
+#  when: not ansible.builtin.stat.path is defined
 
 - name: Ensure app directory exists
   ansible.builtin.file:
