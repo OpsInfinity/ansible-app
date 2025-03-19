@@ -17,11 +17,18 @@
     state: absent
   when: not ansible.builtin.stat.path is defined
 
+- name: Ensure app directory exists
+  ansible.builtin.file:
+    path: /home/spec/app
+    state: directory
+    owner: spec
+    group: spec
+    mode: '0755'
+
 - name: Install NodeJS dependencies
   ansible.builtin.shell: npm install express path body-parser mongoose bcryptjs jsonwebtoken child_process pug util
   args:
     chdir: /home/spec/app
-
 
 - name: Set MongoDB environment variables
   ansible.builtin.lineinfile:
