@@ -49,3 +49,4 @@
     name: spec
     state: restarted
     enabled: true
+# node_modules/ package-lock.json package.json  in this  my local copy to /home/spec/app
